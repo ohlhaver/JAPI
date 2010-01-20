@@ -1,2 +1,2 @@
-class AuthorPreference < JAPI::Model::Base
+class JAPI::AuthorPreference < JAPI::Model::Base
 end

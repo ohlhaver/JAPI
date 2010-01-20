@@ -1,2 +1,2 @@
-class Source < JAPI::Model::Base
+class JAPI::Source < JAPI::Model::Base
 end

@@ -1,4 +1,4 @@
-class Topic < JAPI::Model::Base
+class JAPI::Topic < JAPI::Model::Base
   
   class << self
     

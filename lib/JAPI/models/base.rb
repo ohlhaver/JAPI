@@ -3,21 +3,39 @@ class JAPI::Model::Base < ActiveResource::Base
   cattr_accessor :client
   
   def initialize( attributes = {} )
-    @attributes = HashWithIndifferentAccess.new(attributes)
-    objectify_attributes!
+    @prefix_options = {}
+    load( attributes )
+  end
+  
+  def destroy
+    self.class.delete( to_param )
+  end
+  
+  def save
+    new_record? ? create : update
+  end
+  
+  def to_hash
+    hash = Hash.new
+    attributes.each{ |k,v|
+      hash[ k.to_sym ] = v.is_a?( JAPI::Model::Base ) ? v.to_hash : ( v.is_a?(Array) && v.inject(true){|s,x| s && x.is_a?( JAPI::Model::Base )} ? 
+        v.collect{ |x| x.to_hash } : v )
+    }
+    return hash
   end
   
   protected
   
+  def load( attributes )
+    @attributes = HashWithIndifferentAccess.new( attributes )
+    objectify_attributes!
+  end
+  
   def objectify_attributes!
     attributes.each do |key, value|
-      key_klass = key.to_s.classify.constantize rescue nil
-      next if key_klass.nil?
-      case ( value ) when Array
-        value.collect!{ |attrs| key_klass.new( attrs ) }
-      when Hash
-        key_klass.new( value )
-      end
+      object_value = self.class.new_factory( key, value )
+      next unless object_value
+      attributes[ key ] = object_value
     end
   end
   
@@ -26,29 +44,36 @@ class JAPI::Model::Base < ActiveResource::Base
   end
   
   def update
-    result = client.api_call( self.class.element_update_path, Hash.from_xml( encode ) )
-    errors.add( result[:data], result[:message] ) if result[:error]
-    attributes.delete( :reorder ) unless result[:error]
-    result[:error]
+    prefix_options.symbolize_keys!
+    result = client.api_call( self.class.element_update_path, { self.class.element_name.to_sym => self.to_hash, :id => self.to_param }.reverse_merge( prefix_options ) )
+    errors.add_to_base( result[:data] ) if result[:error]
+    !result[:error]
   end
   
   def create
-    result = client.api_call( self.class.element_create_path, Hash.from_xml( encode ) )
+    prefix_options.symbolize_keys!
+    result = client.api_call( self.class.element_create_path, { self.class.element_name.to_sym => self.to_hash }.reverse_merge( prefix_options ) )
     errors.add( result[:data], result[:message] ) if result[:error]
     attributes[:id] = result[:data] unless result[:error]
-    result[:error]
+    !result[:error]
   end
   
   class << self
     
     def exists?(id, options = {})
-      result = client( element_show_path, ( options[:params] || {} ).merge( :id => id ) )
+      options[:params] ||= {}
+      options[:params].symbolize_keys!
+      options[:params].merge!( :id => id )
+      result = self.client.api_call( element_path, options[:params] )
       !result[:error]
     end
     
     def delete( id, options = {} )
-      client.api_call( element_delete_path, options[:params] || {} )
-      result[:error]
+      options[:params] ||= {}
+      options[:params].symbolize_keys!
+      options[:params].merge!( :id => id )
+      result = self.client.api_call( element_delete_path, options[:params] )
+      !result[:error]
     end
     
     def collection_path
@@ -71,10 +96,28 @@ class JAPI::Model::Base < ActiveResource::Base
       "delete/#{collection_name}"
     end
     
+    def element_name
+      self.name.gsub('JAPI::', '').underscore
+    end
+    
+    def new_factory( key, value = {} )
+      klass_name = key.to_s.classify
+      return nil unless JAPI.constants.include?( klass_name ) && ( value.is_a?( Hash ) || ( value.is_a?( Array ) && value.inject( true ){ |s,x| x.is_a?( Hash ) } ) )
+      klass = JAPI.const_get( klass_name )
+      case ( value ) when Array :
+        value.collect{ |attrs| klass.new( attrs ) }
+      else
+        klass.new( value )
+      end
+    end
+    
     protected
     
     def find_single( id, options={} )
-      result = client( element_show_path, options[:params].merge( :id => id ) )
+      options[:params] ||= {}
+      options[:params].symbolize_keys!
+      options[:params].merge!( :id => id )
+      result = client.api_call( element_path, options[:params] )
       result[:error] ? nil : result[:data]
     end
     
@@ -87,7 +130,7 @@ class JAPI::Model::Base < ActiveResource::Base
       else
         client.api_call( collection_path, options[:params] )
       end
-      result[:error] ? [] : ::PaginatedCollection.new( result )
+      result[:error] ? [] : JAPI::PaginatedCollection.new( result )
     end
     
     # Find a single resource from a one-off URL

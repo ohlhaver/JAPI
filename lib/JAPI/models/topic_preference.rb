@@ -1,2 +1,2 @@
-class TopicPreference < JAPI::Model::Base
+class JAPI::TopicPreference < JAPI::Model::Base
 end

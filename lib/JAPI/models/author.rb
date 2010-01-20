@@ -1,2 +1,2 @@
-class Author < JAPI::Model::Base
+class JAPI::Author < JAPI::Model::Base
 end

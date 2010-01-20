@@ -1,2 +1,2 @@
-class Pagination < JAPI::Model::Base
+class JAPI::Pagination < JAPI::Model::Base
 end

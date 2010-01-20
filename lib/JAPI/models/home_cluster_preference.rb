@@ -1,2 +1,2 @@
-class HomeClusterPreference < JAPI::Model::Base
+class JAPI::HomeClusterPreference < JAPI::Model::Base
 end

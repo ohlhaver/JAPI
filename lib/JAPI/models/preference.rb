@@ -1,2 +1,2 @@
-class Preference < JAPI::Model::Base
+class JAPI::Preference < JAPI::Model::Base
 end

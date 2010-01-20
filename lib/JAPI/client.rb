@@ -3,33 +3,55 @@ class JAPI::Client
   attr_accessor :base_url
   attr_accessor :access_key
   attr_accessor :path_proxy
+  attr_accessor :timeout
   
   def initialize( options = {} )
     @base_url   = options[:base_url]
     @access_key = options[:access_key]
+    @timeout = ( options[:timeout] || 10 ).to_i
     @path_proxy = Hash.new{ |h,k| h[k] = [] }
   end
   
   def api_call( path, params = {}, &block )
     params ||= {}
-    url = URI.parse( api_request_url( path ) )
-    request = Net::HTTP::Post.new( url.path )
-    request.set_form_data( params )
-    response = Net::HTTP.new( url.host, url.port ).start{ |http| http.request( request ) }
-    result = ( Hash.from_xml( response.body ) rescue {} ).try( :[], 'response' )
-    result ||= { :data => 'invalid api call', :error => 'true' }
+    response = api_response( path, params )
+    result = ( Hash.from_xml( response ) rescue nil ).try( :[], 'response' )
+    result ||= Hash.from_xml( incorrect_format_api_call_response( path ) )[ 'response' ]
     result.symbolize_keys!
     objectify_result_data!( result )
     if !result[ :error ] && block
-      block.call( result[:data][:results], result[:data][:pagination] )
+      block.call( result[:data], result[:pagination] )
     end
     result
   end
   
-  protected
+  def api_response( path, params )
+    url = URI.parse( api_request_url( path ) )
+    request = Net::HTTP::Post.new( url.path )
+    request.set_form_data( params )
+    Timeout::timeout( self.timeout ) {
+      response = Net::HTTP.new( url.host, url.port ).start{ |http| http.request( request ) } rescue nil
+      return response.try( :body ) || invalid_api_call_response( path )
+    }
+    return timeout_api_call_response( path )
+  end
   
   def api_request_url( path )
     "#{base_url}/api/#{access_key}/#{path}"
+  end
+  
+  protected
+  
+  def incorrect_format_api_call_response( path )
+    { :error => true, :message => 'api.format.invalid', :data => path }.to_xml( :root => 'response' )
+  end
+  
+  def invalid_api_call_response( path )
+    { :error => true, :message => 'api.action.invalid', :data => path }.to_xml( :root => 'response' )
+  end
+  
+  def timeout_api_call_response( path )
+    { :error => true, :message => "api.request.timeout.#{timeout}.seconds", :data => path }.to_xml( :root => 'response')
   end
   
   private
@@ -37,13 +59,9 @@ class JAPI::Client
   def objectify_result_data!( result )
     return if result[:error] || !result[:data].is_a?( Hash )
     result[:data].each do |k, v|
-      klass = k.classify.constantize rescue nil
-      next unless klass
-      if v.is_a?( Array )
-        v.collect!{ |vv| klass.new( vv ) }
-      else
-        result[:data][k] = klass.new( v )
-      end
+      object = JAPI::Model::Base.new_factory( k, v )
+      next unless object
+      result[:data][k] = object
     end
     result[:data].symbolize_keys!
     key = result[:data].keys.select{ |x| x != :pagination }.first

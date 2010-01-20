@@ -1,2 +1,2 @@
-class HomeDisplayPreference < JAPI::Model::Base
+class JAPI::HomeDisplayPreference < JAPI::Model::Base
 end

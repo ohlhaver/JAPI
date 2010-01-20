@@ -1,4 +1,4 @@
-class Cluster < JAPI::Model::Base
+class JAPI::Cluster < JAPI::Model::Base
   
   class << self
     

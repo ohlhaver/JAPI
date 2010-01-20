@@ -1,4 +1,4 @@
-class PaginatedCollection < Array
+class JAPI::PaginatedCollection < Array
   
   attr_reader :pagination
   

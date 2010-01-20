@@ -1,12 +1,13 @@
 $:.unshift(File.dirname(__FILE__)) unless
   $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
+require 'rubygems'
 gem 'activesupport', :version => '>=2.3.4'
 gem 'activeresource', :version => '>=2.3.4'
 require 'net/http'
 require 'activesupport'
 require 'activeresource'
 module JAPI
-  VERSION = '0.0.1'
+  VERSION = '1.0.0'
   module Model
   end
 end
