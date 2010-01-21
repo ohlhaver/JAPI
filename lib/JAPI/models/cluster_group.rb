@@ -1,5 +1,7 @@
 class JAPI::ClusterGroup < JAPI::Model::Base
   
+  # Use find( :one, :params => { :cluster_group_id => 1 } )
+  # Use find( :all, :params => { :cluster_group_ids => [1,2,3] } )
   
   class << self
     

@@ -264,11 +264,10 @@ describe JAPI::Model::Base do
       it 'should return story hash' do
         @hash.should be_key( :id )
         @hash.should be_key( :title )
-        @hash.should be_key( :authors )
       end
       
-      it 'should serialize nested objects' do
-        @hash[:authors].should == [ { :name => 'Author 1', :id => 1 }, { :name => 'Author 2', :id => 2 } ] 
+      it 'should not serialize nested ActiveResource Objects' do
+        @hash.should_not be_key( :authors )
       end
     
     end

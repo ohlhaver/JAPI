@@ -28,6 +28,8 @@ class JAPI::Client
   def api_response( path, params )
     url = URI.parse( api_request_url( path ) )
     request = Net::HTTP::Post.new( url.path )
+    # Multiple Params Fix
+    params.each{ |k,v| next unless v.is_a?(Array); params[k] = v.join(',') }
     request.set_form_data( params )
     Timeout::timeout( self.timeout ) {
       response = Net::HTTP.new( url.host, url.port ).start{ |http| http.request( request ) } rescue nil

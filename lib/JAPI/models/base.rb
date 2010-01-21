@@ -1,6 +1,7 @@
 class JAPI::Model::Base < ActiveResource::Base
   
   cattr_accessor :client
+  attr_accessor :pagination
   
   def initialize( attributes = {} )
     @prefix_options = {}
@@ -18,8 +19,10 @@ class JAPI::Model::Base < ActiveResource::Base
   def to_hash
     hash = Hash.new
     attributes.each{ |k,v|
-      hash[ k.to_sym ] = v.is_a?( JAPI::Model::Base ) ? v.to_hash : ( v.is_a?(Array) && v.inject(true){|s,x| s && x.is_a?( JAPI::Model::Base )} ? 
-        v.collect{ |x| x.to_hash } : v )
+      # hash[ k.to_sym ] = v.is_a?( JAPI::Model::Base ) ? v.to_hash : ( v.is_a?(Array) && v.inject(true){|s,x| s && x.is_a?( JAPI::Model::Base )} ? 
+      #         v.collect{ |x| x.to_hash } : v )
+      next if v.is_a?( JAPI::Model::Base ) || ( v.is_a?(Array) && v.inject(false){ |s,x| s || x.is_a?( JAPI::Model::Base ) } )
+      hash[ k.to_sym ] = v
     }
     return hash
   end
@@ -128,9 +131,9 @@ class JAPI::Model::Base < ActiveResource::Base
       when String :
         client.api_call( from, options[:params] || {} )
       else
-        client.api_call( collection_path, options[:params] )
+        client.api_call( collection_path, options[:params] || {} )
       end
-      result[:error] ? [] : JAPI::PaginatedCollection.new( result )
+      JAPI::PaginatedCollection.new( result )
     end
     
     # Find a single resource from a one-off URL
@@ -140,8 +143,10 @@ class JAPI::Model::Base < ActiveResource::Base
         client.api_call( "#{collection_path}/#{from}", options[:params] || {} )
       when String :
         client.api_call( from, options[:params] || {} )
+      else
+        client.api_call( collection_path, options[:params] || {} )
       end
-      result[:error] ? nil : Array( result[:data] ).first
+      ( result[:error] ? nil : Array( result[:data] ).first ).try( :tap ){ |r| r.pagination = result[:pagination] }
     end
     
     def collection_name
