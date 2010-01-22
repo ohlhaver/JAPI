@@ -32,7 +32,7 @@ Gem::Specification.new do |s|
     "lib/JAPI/models/story_preference.rb",
     "lib/JAPI/models/topic.rb",
     "lib/JAPI/models/topic_preference.rb",
-    "lib/JAPI/models/users.rb"
+    "lib/JAPI/models/user.rb"
   ]
   s.has_rdoc = true
   s.homepage = %q{https://github.com/ohlhaver/JAPI}
