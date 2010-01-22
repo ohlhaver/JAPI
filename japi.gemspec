@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{japi}
-  s.version = "1.0.0"
+  s.version = "1.2.0"
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Ram Singla"]
   s.date = %q{2010-01-21}
@@ -14,6 +14,7 @@ Gem::Specification.new do |s|
     "README.markdown",
     "lib/JAPI.rb",
     "lib/JAPI/client.rb",
+    "lib/JAPI/connect.rb",
     "lib/JAPI/models/author.rb",
     "lib/JAPI/models/author_preference.rb",
     "lib/JAPI/models/base.rb",
@@ -30,7 +31,8 @@ Gem::Specification.new do |s|
     "lib/JAPI/models/story.rb",
     "lib/JAPI/models/story_preference.rb",
     "lib/JAPI/models/topic.rb",
-    "lib/JAPI/models/topic_preference.rb"
+    "lib/JAPI/models/topic_preference.rb",
+    "lib/JAPI/models/users.rb"
   ]
   s.has_rdoc = true
   s.homepage = %q{https://github.com/ohlhaver/JAPI}
