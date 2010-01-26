@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
     "lib/JAPI/models/base.rb",
     "lib/JAPI/models/cluster.rb",
     "lib/JAPI/models/cluster_group.rb",
+    "lib/JAPI/models/element.rb",
     "lib/JAPI/models/home_cluster_preference.rb",
     "lib/JAPI/models/home_display_preference.rb",
     "lib/JAPI/models/paginated_collection.rb",
@@ -42,8 +43,8 @@ Gem::Specification.new do |s|
   s.summary = %q{JAPI is ruby wrapper for Jurnalo RESTful API.}
   
   dependencies = { 
-    'activesupport' => '>=2.3.4',
-    'activeresource' => '>=2.3.4'
+    'activesupport' => '=2.3.4',
+    'activeresource' => '=2.3.4'
   }
   
   if s.respond_to?(:specification_version) && 

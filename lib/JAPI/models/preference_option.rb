@@ -29,25 +29,37 @@ class JAPI::PreferenceOption < JAPI::Model::Base
       reverse[ value ]
     end
     
+    def empty?
+      forward.empty?
+    end
+    
   end
   
   class << self 
     
     def language_options
-      @@language_options = find( :all, :params => { :preference_id => 'language_id' } ) if @@language_options.blank?
+      @@language_options ||= nil
+      @@lqnguage_options = nil if @@language_options.try( :error )
+      @@language_options ||= find( :all, :params => { :preference_id => 'language_id' } )
       @@language_options
     end
   
     def region_options
-      @@region_options = find( :all, :params => { :preference_id => 'region_id' } ) if @@region_options.blank?
+      @@region_options ||= nil
+      @@region_options = nil if @@region_options.try( :error )
+      @@region_options = find( :all, :params => { :preference_id => 'region_id' } )
       @@region_options
     end
   
     def language_bijection_map
+      @@language_bijection_map ||= nil
+      @@language_bijection_map = nil if @@language_bijection_map.try(:empty?)
       @@language_bijeciton_map ||= self.language_options.inject( Bijection.new ){ |map,record| map[ record.id.to_i ] = record.code.to_sym; map }
     end
   
     def region_bijection_map
+      @@region_bijection_map ||= nil
+      @@region_bijection_map = nil if @@region_bijection_map.try(:empty?)
       @@region_bijection_map ||= self.region_options.inject( Bijection.new ){ |map,record| map[ record.id.to_i] = record.code.to_s.downcase.to_sym; map }
     end
   
@@ -65,7 +77,7 @@ class JAPI::PreferenceOption < JAPI::Model::Base
       language = case(language.to_s) when /\d+/ : language
       else language_id( language )
       end
-      OpenStruct.new( :region_id => region, :language_id => language_id )
+      OpenStruct.new( :region_id => region, :language_id => language, :region => region_code( region ), :locale => locale( language ) )
     end
   
     def edition( region, language )
@@ -76,7 +88,7 @@ class JAPI::PreferenceOption < JAPI::Model::Base
       region && language ? "#{region}-#{language}" : nil
     end
   
-    def language_id( langauage_code )
+    def language_id( language_code )
       language_bijection_map[ language_code.to_sym, :reverse ] rescue nil
     end
   
@@ -92,7 +104,7 @@ class JAPI::PreferenceOption < JAPI::Model::Base
     end
   
     def region_code( region_id )
-      region_bijection_map[ Integer(region_id), :reverse ] rescue nil
+      region_bijection_map[ Integer(region_id) ] rescue nil
     end
   
     def valid_locale?( locale )

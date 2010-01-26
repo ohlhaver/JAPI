@@ -25,15 +25,16 @@ def JAPI.rails_init( env, root, log_level, file )
   options = YAML.load( IO.read( root + file ) )
   JAPI.send( :remove_const, :Config ) rescue
   JAPI.const_set( :Config, { :client => options['client'][ env ].symbolize_keys, :connect => options['connect'][env].symbolize_keys } )
-  JAPI::Model::Base.client = JAPI::Client.new( Config[:client] )
-  if Config[:connect]
+  JAPI::Model::Base.client = JAPI::Client.new( JAPI::Config[:client] )
+  if JAPI::Config[:connect]
+    JAPI::Config[:connect][:account_server] = URI.parse( JAPI::Config[:connect][:account_server] )
     gem 'rubycas-client', :version => '2.1.0'
     require 'casclient'
     require 'casclient/frameworks/rails/filter'
-    cas_logger = options[:connect][:log_file] ? Logger.new( root + Config[:connect][:logfile] ) : nil
+    cas_logger = JAPI::Config[:connect][:log_file] ? Logger.new( root + JAPI::Config[:connect][:log_file] ) : nil
     cas_logger.try( :level=, log_level )
     CASClient::Frameworks::Rails::Filter.configure(
-      :cas_base_url => Config[:connect][:login_server],
+      :cas_base_url => JAPI::Config[:connect][:login_server],
       :username_session_key => :cas_user,
       :extra_attributes_session_key => :cas_user_attrs,
       :logger => cas_logger,
