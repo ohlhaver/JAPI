@@ -39,7 +39,7 @@ class JAPI::Client
   end
   
   def api_request_url( path )
-    "#{base_url}/#{access_key}/#{path}"
+    "#{base_url}/api/#{access_key}/#{path}"
   end
   
   protected
