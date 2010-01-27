@@ -23,6 +23,7 @@ Gem::Specification.new do |s|
     "lib/JAPI/models/element.rb",
     "lib/JAPI/models/home_cluster_preference.rb",
     "lib/JAPI/models/home_display_preference.rb",
+    "lib/JAPI/models/navigation_link.rb",
     "lib/JAPI/models/paginated_collection.rb",
     "lib/JAPI/models/pagination.rb",
     "lib/JAPI/models/preference.rb",
