@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{japi}
-  s.version = "1.2.0"
+  s.version = "1.3.0"
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Ram Singla"]
   s.date = %q{2010-01-21}
@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
     "lib/JAPI/models/cluster.rb",
     "lib/JAPI/models/cluster_group.rb",
     "lib/JAPI/models/element.rb",
+    "lib/JAPI/models/facet.rb",
     "lib/JAPI/models/home_cluster_preference.rb",
     "lib/JAPI/models/home_display_preference.rb",
     "lib/JAPI/models/navigation_link.rb",

@@ -66,8 +66,9 @@ class JAPI::Client
       result[:data][k] = object
     end
     result[:data].symbolize_keys!
-    key = result[:data].keys.select{ |x| x != :pagination }.first
+    key = result[:data].keys.select{ |x| ![:pagination, :facets].include?( x ) }.first
     result[:pagination] = result[:data][:pagination]
+    result[:facets] = JAPI::FacetCollection.new( result[:data][:facets] || [] )
     result[:data] = result[:data].delete( key )
   end
   

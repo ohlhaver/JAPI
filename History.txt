@@ -1,3 +1,6 @@
+== 1.3.0 2010-01-28
+* Able to extract newly added facets data to API into proper response.
+
 == 1.0.0 2010-01-21
 
 * 1 major enhancement:

@@ -30,6 +30,14 @@ describe JAPI::Client do
       @client = JAPI::Client.new( :base_url => 'http://localhost:3000', :access_key => 'foo_key' )
       @success_response_with_pagination = { :error => false, :message => 'api.call.success', :data => { :stories => [ JAPI::Story.new( :title => @story_title ) ], 
           :pagination => JAPI::Pagination.new( :total_pages => 1, :next_page => nil, :previous_page => nil ) } }.to_xml( :root => 'response' )
+      @success_response_with_pagination_and_facets = { :error => false, :message => 'api.call.success', :data => { 
+          :stories => [ JAPI::Story.new( :title => @story_title ) ], 
+          :pagination => JAPI::Pagination.new( :total_pages => 1, :next_page => nil, :previous_page => nil ),
+          :facets => JAPI::FacetCollection.new( [ JAPI::Facet.new( :filter => :is_blog, :value => true, :count => 10 ),
+            JAPI::Facet.new( :filter => :is_video, :value => true, :count => 11 ),
+            JAPI::Facet.new( :filter => :is_opinion, :value => true, :count => 12 )
+             ] )
+        } }.to_xml( :root => 'response' )
       @success_response_without_pagination = { :error => false, :message => 'api.call.success', :data => { :story => JAPI::Story.new(:title => @story_title ) } }.to_xml( :root => 'response')
       @error_response = { :error => true, :message => 'api.call.failure', :data => 'some failure cause' }.to_xml( :root => 'response' )
     end
@@ -62,6 +70,19 @@ describe JAPI::Client do
       result[:data].should be_is_a( Array )
       result[:data].each{ |s| s.should be_is_a( JAPI::Story ) }
       result[:data].collect( &:title ).should include( @story_title )
+    end
+    
+    it "should make a successful api call with pagination and facets" do
+      @client.should_receive(:api_response).with('success_path', {}).and_return( @success_response_with_pagination_and_facets )
+      result = @client.api_call( 'success_path' )
+      result[:error].should_not be_true
+      result[:data].should be_is_a( Array )
+      result[:data].each{ |s| s.should be_is_a( JAPI::Story ) }
+      result[:data].collect( &:title ).should include( @story_title )
+      result[:facets].should be_is_a( JAPI::FacetCollection )
+      result[:facets].blog_count.should == 10
+      result[:facets].video_count.should == 11
+      result[:facets].opinion_count.should == 12
     end
     
     it "should make a successful api call with block and pagination" do

@@ -2,6 +2,7 @@ class JAPI::Model::Base < ActiveResource::Base
   
   cattr_accessor :client
   attr_accessor :pagination
+  attr_accessor :facets
   
   def initialize( attributes = {} )
     @prefix_options = {}
@@ -146,7 +147,7 @@ class JAPI::Model::Base < ActiveResource::Base
       else
         client.api_call( collection_path, options[:params] || {} )
       end
-      ( result[:error] ? nil : Array( result[:data] ).first ).try( :tap ){ |r| r.pagination = result[:pagination] }
+      ( result[:error] ? nil : Array( result[:data] ).first ).try( :tap ){ |r| r.pagination = result[:pagination]; r.facets = results[:facets] }
     end
     
     def collection_name
