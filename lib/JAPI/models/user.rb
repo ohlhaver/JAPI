@@ -28,6 +28,7 @@ class JAPI::User < JAPI::Model::Base
   end
   
   def home_blocks( edition = nil )
+    user_id = new_record? ? 'default' : self.id
     blocks = ActiveSupport::OrderedHash.new
     edition ||= JAPI::PreferenceOption.parse_edition( self.edition || 'int-en' )
     home_blocks_order.inject( blocks ){ |opts, pref|
