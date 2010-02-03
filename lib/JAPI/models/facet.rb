@@ -4,6 +4,10 @@ class JAPI::FacetCollection < Array
     super
   end
   
+  def filter_count
+    video_count + blog_count + opinion_count
+  end
+  
   def blog_count
     select{ |facet| facet.value == true && facet.filter == :is_blog }.first.try( :count ) || 0
   end

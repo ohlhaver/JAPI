@@ -29,7 +29,7 @@ class JAPI::Client
     url = URI.parse( api_request_url( path ) )
     request = Net::HTTP::Post.new( url.path )
     # Multiple Params Fix
-    params.each{ |k,v| next unless v.is_a?(Array); params[k] = v.join(',') }
+    flatten_params!( params )
     request.set_form_data( params )
     Timeout::timeout( self.timeout ) {
       response = Net::HTTP.new( url.host, url.port ).start{ |http| http.request( request ) } rescue nil
@@ -83,6 +83,22 @@ class JAPI::Client
     else
       super
     end
+  end
+  
+  def flatten_params!( params )
+    params.each{ |k,v| 
+      case( v ) when Array:
+        params[k] = v.join(',')
+      when Hash:
+        params.delete( k )
+        flatten_params!( v )
+        v.each_pair{ |sk, sv| 
+          match = sk.to_s.match(/([^\]\[]+)(\[(.+)\])?/)
+          params[ "#{k}[#{match[1]}]#{match[2]}" ] = sv
+        }
+      end
+    }
+    return params
   end
   
 end

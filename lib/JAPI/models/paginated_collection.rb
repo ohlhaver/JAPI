@@ -1,10 +1,10 @@
 class JAPI::PaginatedCollection < Array
   
-  attr_reader :facets
-  attr_reader :pagination
-  attr_reader :error
-  attr_reader :data
-  attr_reader :message
+  attr_reader   :facets
+  attr_accessor :pagination
+  attr_reader   :error
+  attr_reader   :data
+  attr_reader   :message
   
   def initialize( options = {} )
     @facets     = options[:facets]

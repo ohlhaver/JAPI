@@ -37,13 +37,41 @@ class JAPI::PreferenceOption < JAPI::Model::Base
   
   class << self 
     
+    def author_rating_options
+      @@author_rating_options ||= nil
+      @@author_rating_options = nil if @@author_rating_options.try( :error )
+      @@author_rating_options ||= find( :all, :params => { :preference_id => 'author' } ).unshift( new( :name => 'prefs.val.nil', :code => :blank , :id => nil ) )
+      @@author_rating_options
+    end
+    
+    def source_rating_options
+      @@source_rating_options ||= nil
+      @@source_rating_options = nil if @@source_rating_options.try( :error )
+      @@source_rating_options ||= find( :all, :params => { :preference_id => 'source' } ).unshift( new( :name => 'prefs.val.nil', :code => :blank , :id => nil ) )
+      @@source_rating_options
+    end
+    
+    def sort_criteria_options
+      @@sort_criteria_options ||= nil
+      @@sort_criteria_options = nil if @@sort_criteria_options.try( :error )
+      @@sort_criteria_options ||= find( :all, :params => { :preference_id => 'sort_criteria' } )
+      @@sort_criteria_options
+    end
+
+    def subscription_type_options
+      @@subscription_type_options ||= nil
+      @@subscription_type_options = nil if @@subscription_type_options.try( :error )
+      @@subscription_type_options ||= find( :all, :params => { :preference_id => 'subscription_type' } )
+      @@subscription_type_options
+    end
+    
     def language_options
       @@language_options ||= nil
-      @@lqnguage_options = nil if @@language_options.try( :error )
+      @@language_options = nil if @@language_options.try( :error )
       @@language_options ||= find( :all, :params => { :preference_id => 'language_id' } )
       @@language_options
     end
-  
+      
     def region_options
       @@region_options ||= nil
       @@region_options = nil if @@region_options.try( :error )

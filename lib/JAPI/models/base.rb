@@ -3,6 +3,7 @@ class JAPI::Model::Base < ActiveResource::Base
   cattr_accessor :client
   attr_accessor :pagination
   attr_accessor :facets
+  attr_accessor :prefix_options
   
   def initialize( attributes = {} )
     @prefix_options = {}
@@ -10,7 +11,7 @@ class JAPI::Model::Base < ActiveResource::Base
   end
   
   def destroy
-    self.class.delete( to_param )
+    self.class.delete( to_param, :params => prefix_options )
   end
   
   def save
@@ -122,7 +123,9 @@ class JAPI::Model::Base < ActiveResource::Base
       options[:params].symbolize_keys!
       options[:params].merge!( :id => id )
       result = client.api_call( element_path, options[:params] )
-      result[:error] ? nil : result[:data]
+      result = result[:error] ? nil : result[:data]
+      result.prefix_options = options[:params] if result
+      result
     end
     
     def find_every(options)
@@ -147,7 +150,8 @@ class JAPI::Model::Base < ActiveResource::Base
       else
         client.api_call( collection_path, options[:params] || {} )
       end
-      ( result[:error] ? nil : Array( result[:data] ).first ).try( :tap ){ |r| r.pagination = result[:pagination]; r.facets = result[:facets] }
+      result = ( result[:error] ? nil : Array( result[:data] ).first ).try( :tap ){ |r| r.pagination = result[:pagination]; r.facets = result[:facets] }
+      return result
     end
     
     def collection_name
