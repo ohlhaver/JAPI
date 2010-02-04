@@ -35,7 +35,7 @@ class JAPI::User < JAPI::Model::Base
       case( pref ) when :top_stories_cluster_group
         opts[:top_stories] = []
       when :cluster_groups
-        opts[:sections] = JAPI::ClusterGroup.find( :all, :params => { :user_id => self.id, :cluster_group_id => 'all', 
+        opts[:sections] = JAPI::ClusterGroup.find( :all, :params => { :user_id => user_id, :cluster_group_id => 'all', 
           :region_id => edition.region_id, :language_id => edition.language_id } )
       when :my_authors
         opts[:my_authors] = [ JAPI::Story.find( :all, :from => :authors, :params => { :author_ids => :all, :user_id => self.id, :preview => 1, 
@@ -45,11 +45,13 @@ class JAPI::User < JAPI::Model::Base
       end
       opts
     }
-    if blocks[:sections].blank?
-      blocks[:top_stories] = [ JAPI::ClusterGroup.find( :all, :params => { :user_id => user_id, :cluster_id => 'top', :preview => 1, :language_id => edition.language_id } ) ]
+    if blocks[:sections].nil?
+      blocks[:top_stories] = Array( JAPI::ClusterGroup.find( :one, :params => { :user_id => user_id, :cluster_group_id => 'top', :preview => 1, 
+        :region_id => edition.region_id, :language_id => edition.language_id } ) )
     else
-      blocks[:top_stories] = [ blocks[:sections].shift ]
+      blocks[:top_stories] = Array( blocks[:sections].shift )
     end if blocks.key?( :top_stories )
+    blocks.delete(:top_stories) if blocks[:top_stories].first && blocks[:top_stories].first.clusters.empty?
     return blocks
   end
   

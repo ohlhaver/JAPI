@@ -8,6 +8,10 @@ class JAPI::FacetCollection < Array
     video_count + blog_count + opinion_count
   end
   
+  def category_count( category_id )
+    select{ |facet| facet.value == category_id.to_i && facet.filter == :category_id }.first.try( :count ) || 0
+  end
+  
   def blog_count
     select{ |facet| facet.value == true && facet.filter == :is_blog }.first.try( :count ) || 0
   end
