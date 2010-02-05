@@ -78,7 +78,13 @@ class JAPI::User < JAPI::Model::Base
         opts[ :add_topic ] = JAPI::NavigationLink.new( :name => 'Add Topic', :type => 'new_topic', :remote => true )
         opts[ :my_topics ] = JAPI::NavigationLink.new( :name => 'My Topics', :type => 'my_topics', :remote => true )
       when :my_authors
-        opts[ :my_authors ] = JAPI::NavigationLink.new( :name => 'My Authors', :type => 'my_authors' )
+        opts[ :my_authors ] = JAPI::NavigationLink.new( :name => 'My Authors', :type => 'my_authors' ).tap{ |l|
+          l.base = 0
+          unless new_record?
+            results = JAPI::Story.find( :all, :from => :authors, :params => { :author_ids => :all, :user_id => self.id, :per_page => 0, :time_span => 24.hours.to_i } )
+            l.base = results.facets.count
+          end
+        }
       end
       opts
     }
