@@ -40,90 +40,90 @@ class JAPI::PreferenceOption < JAPI::Model::Base
     def category_options
       @@category_options ||= nil
       @@category_options = nil if @@category_options.try( :error )
-      @@category_options ||= find( :all, :params => { :preference_id => 'category_id' } )
+      @@category_options ||= find( :all, :params => { :preference_id => 'category_id' } ).freeze
       @@category_options 
     end
 
     def time_span_options
       @@time_span_options ||= nil
       @@time_span_options = nil if @@time_span_options.try( :error )
-      @@time_span_options ||= find( :all, :params => { :preference_id => 'time_span' } )
+      @@time_span_options ||= find( :all, :params => { :preference_id => 'time_span' } ).freeze
       @@time_span_options 
     end
 
     def video_pref_options
       @@video_pref_options ||= nil
       @@video_pref_options = nil if @@video_pref_options.try( :error )
-      @@video_pref_options ||= find( :all, :params => { :preference_id => 'video' } )
+      @@video_pref_options ||= find( :all, :params => { :preference_id => 'video' } ).freeze
       @@video_pref_options 
     end
 
     def opinion_pref_options
       @@opinion_pref_options ||= nil
       @@opinion_pref_options = nil if @@opinion_pref_options.try( :error )
-      @@opinion_pref_options ||= find( :all, :params => { :preference_id => 'opinion' } )
+      @@opinion_pref_options ||= find( :all, :params => { :preference_id => 'opinion' } ).freeze
       @@opinion_pref_options 
     end
 
     def blog_pref_options
       @@blog_pref_options ||= nil
       @@blog_pref_options = nil if @@blog_pref_options.try( :error )
-      @@blog_pref_options ||= find( :all, :params => { :preference_id => 'blog' } )
+      @@blog_pref_options ||= find( :all, :params => { :preference_id => 'blog' } ).freeze
       @@blog_pref_options 
     end
     
     def author_rating_options
       @@author_rating_options ||= nil
       @@author_rating_options = nil if @@author_rating_options.try( :error )
-      @@author_rating_options ||= find( :all, :params => { :preference_id => 'author' } ).unshift( new( :name => 'prefs.val.nil', :code => :blank , :id => nil ) )
+      @@author_rating_options ||= find( :all, :params => { :preference_id => 'author' } ).unshift( new( :name => 'prefs.val.nil', :code => :blank , :id => nil ) ).freeze
       @@author_rating_options
     end
     
     def source_rating_options
       @@source_rating_options ||= nil
       @@source_rating_options = nil if @@source_rating_options.try( :error )
-      @@source_rating_options ||= find( :all, :params => { :preference_id => 'source' } ).unshift( new( :name => 'prefs.val.nil', :code => :blank , :id => nil ) )
+      @@source_rating_options ||= find( :all, :params => { :preference_id => 'source' } ).unshift( new( :name => 'prefs.val.nil', :code => :blank , :id => nil ) ).freeze
       @@source_rating_options
     end
     
     def sort_criteria_options
       @@sort_criteria_options ||= nil
       @@sort_criteria_options = nil if @@sort_criteria_options.try( :error )
-      @@sort_criteria_options ||= find( :all, :params => { :preference_id => 'sort_criteria' } )
+      @@sort_criteria_options ||= find( :all, :params => { :preference_id => 'sort_criteria' } ).freeze
       @@sort_criteria_options
     end
 
     def subscription_type_options
       @@subscription_type_options ||= nil
       @@subscription_type_options = nil if @@subscription_type_options.try( :error )
-      @@subscription_type_options ||= find( :all, :params => { :preference_id => 'subscription_type' } )
+      @@subscription_type_options ||= find( :all, :params => { :preference_id => 'subscription_type' } ).freeze
       @@subscription_type_options
     end
     
     def language_options
       @@language_options ||= nil
       @@language_options = nil if @@language_options.try( :error )
-      @@language_options ||= find( :all, :params => { :preference_id => 'language_id' } )
+      @@language_options ||= find( :all, :params => { :preference_id => 'language_id' } ).freeze
       @@language_options
     end
       
     def region_options
       @@region_options ||= nil
       @@region_options = nil if @@region_options.try( :error )
-      @@region_options = find( :all, :params => { :preference_id => 'region_id' } )
+      @@region_options = find( :all, :params => { :preference_id => 'region_id' } ).freeze
       @@region_options
     end
   
     def language_bijection_map
       @@language_bijection_map ||= nil
       @@language_bijection_map = nil if @@language_bijection_map.try(:empty?)
-      @@language_bijeciton_map ||= self.language_options.inject( Bijection.new ){ |map,record| map[ record.id.to_i ] = record.code.to_sym; map }
+      @@language_bijeciton_map ||= self.language_options.inject( Bijection.new ){ |map,record| map[ record.id.to_i ] = record.code.to_sym; map }.freeze
     end
   
     def region_bijection_map
       @@region_bijection_map ||= nil
       @@region_bijection_map = nil if @@region_bijection_map.try(:empty?)
-      @@region_bijection_map ||= self.region_options.inject( Bijection.new ){ |map,record| map[ record.id.to_i] = record.code.to_s.downcase.to_sym; map }
+      @@region_bijection_map ||= self.region_options.inject( Bijection.new ){ |map,record| map[ record.id.to_i] = record.code.to_s.downcase.to_sym; map }.freeze
     end
   
     #

@@ -165,9 +165,9 @@ class JAPI::Model::Base < ActiveResource::Base
       else
         client.api_call( collection_path, options[:params] )
       end
-      JAPI::PaginatedCollection.new( result ).collect{ |x| 
+      JAPI::PaginatedCollection.new( result ).each{ |x| 
         x.prefix_options = { :user_id => options[:params][:user_id] } if options[:params][:user_id]
-        x 
+        x
       }
     end
     
