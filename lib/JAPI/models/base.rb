@@ -147,35 +147,47 @@ class JAPI::Model::Base < ActiveResource::Base
       options[:params].symbolize_keys!
       options[:params].merge!( :id => id )
       result = client.api_call( element_path, options[:params] )
-      result = result[:error] ? nil : result[:data]
-      result.prefix_options = options[:params].delete_if{ |k,v| k == :id } if result
-      result
+      object = result[:error] ? nil : result[:data]
+      object.try( :tap ){ |r| 
+        r.prefix_options = { :user_id => options[:params][:user_id] } if options[:params][:user_id]
+        r.pagination = result[:pagination]; 
+        r.facets = result[:facets] 
+      }
     end
     
     def find_every(options)
+      options[:params] ||= {}
       result = case from = options[:from]
       when Symbol :
-        client.api_call( "#{collection_path}/#{from}", options[:params] || {} )
+        client.api_call( "#{collection_path}/#{from}", options[:params] )
       when String :
-        client.api_call( from, options[:params] || {} )
+        client.api_call( from, options[:params] )
       else
-        client.api_call( collection_path, options[:params] || {} )
+        client.api_call( collection_path, options[:params] )
       end
-      JAPI::PaginatedCollection.new( result )
+      JAPI::PaginatedCollection.new( result ).collect{ |x| 
+        x.prefix_options = { :user_id => options[:params][:user_id] } if options[:params][:user_id]
+        x 
+      }
     end
     
     # Find a single resource from a one-off URL
     def find_one(options)
+      options[:params] ||= {}
       result = case from = options[:from]
       when Symbol :
-        client.api_call( "#{collection_path}/#{from}", options[:params] || {} )
+        client.api_call( "#{collection_path}/#{from}", options[:params] )
       when String :
-        client.api_call( from, options[:params] || {} )
+        client.api_call( from, options[:params] )
       else
-        client.api_call( collection_path, options[:params] || {} )
+        client.api_call( collection_path, options[:params] )
       end
-      result = ( result[:error] ? nil : Array( result[:data] ).first ).try( :tap ){ |r| r.pagination = result[:pagination]; r.facets = result[:facets] }
-      return result
+      object = result[:error] ? nil : Array( result[:data] ).first 
+      object.try( :tap ){ |r| 
+        r.prefix_options = { :user_id => options[:params][:user_id] } if options[:params][:user_id]
+        r.pagination = result[:pagination]
+        r.facets = result[:facets]
+      }
     end
     
     def collection_name

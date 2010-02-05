@@ -21,6 +21,7 @@ class JAPI::NavigationLink
   attr_accessor :type
   attr_accessor :remote
   attr_accessor :translate
+  attr_accessor :base # attribute to assign some base object
   
   def initialize( options = {} )
     options ||= {}
@@ -32,6 +33,11 @@ class JAPI::NavigationLink
     @name = options[:name].to_s
     @name = I18n.t( "#{translation_prefix}.#{@name.gsub(' ', '_').underscore}" ) if @translate
     @params = options[:params]
+  end
+  
+  def tap( &block )
+    block.call( self )
+    self
   end
   
   def to_url_hash( options = {} )

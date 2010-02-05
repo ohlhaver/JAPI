@@ -31,7 +31,8 @@ class JAPI::TopicPreference < JAPI::Model::Base
   def self.extract( params = {} )
     attributes = Hash.new
     map.each{ |k,v|
-      attributes[k] = params[k] || params[v]
+      value = params[k] || params[v]
+      attributes[k] = value if value
     }
     return attributes
   end

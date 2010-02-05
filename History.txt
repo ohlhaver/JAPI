@@ -1,3 +1,11 @@
+== 1.3.4 2010-02-05
+* Major bugfix in JAPI::Model::Base
+* Population of errors more inline to ActiveRecord ( API Change )
+* Count support to FacetCollection ( API Change )
+* Gateway session is not checked on every request. CAS Server is queried every 10.minutes
+* Navigation Links generated stores count for Topics
+* More PrefixOptions class methods
+
 == 1.3.2 2010-02-02
 * Client bugfix 
 

@@ -51,7 +51,7 @@ class JAPI::User < JAPI::Model::Base
     else
       blocks[:top_stories] = Array( blocks[:sections].shift )
     end if blocks.key?( :top_stories )
-    blocks.delete(:top_stories) if blocks[:top_stories].first && blocks[:top_stories].first.clusters.empty?
+    blocks.delete(:top_stories) if blocks.key?( :top_stories ) && blocks[:top_stories].first && blocks[:top_stories].first.clusters.empty?
     return blocks
   end
   
@@ -70,7 +70,10 @@ class JAPI::User < JAPI::Model::Base
         opts[ :add_section ] = JAPI::NavigationLink.new( :name => 'Add Section', :type => 'new_cluster_group', :remote => true )
       when :my_topics
         opts[ :topics ] = JAPI::TopicPreference.find( :all, :params => { :user_id => user_id } ).collect do |pref|
-          JAPI::NavigationLink.new( :id => pref.id, :name => pref.name, :translate => false, :type => 'topic' )
+          JAPI::NavigationLink.new( :id => pref.id, :name => pref.name, :translate => false, :type => 'topic' ).tap{ |l| 
+            topic = JAPI::Topic.new( :id => pref.id ).tap{ |t| t.prefix_options = { :user_id => user_id } }
+            l.base = topic.home_count( pref.time_span || self.preference.default_time_span ) # New Topic Stories in last 24 hours or last hour depending upon the setting
+          }
         end
         opts[ :add_topic ] = JAPI::NavigationLink.new( :name => 'Add Topic', :type => 'new_topic', :remote => true )
         opts[ :my_topics ] = JAPI::NavigationLink.new( :name => 'My Topics', :type => 'my_topics', :remote => true )
