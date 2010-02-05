@@ -107,13 +107,17 @@ module JAPI
       
       # Checks for session validation after 10.minutes
       def session_check_for_validation
-        session[:cas_sent_to_gateway] = true
         last_st = session.try( :[], :cas_last_valid_ticket )
         unless last_st
-          session[ :cas_user_attrs ] = nil
-          session[ CASClient::Frameworks::Rails::Filter.client.username_session_key ] = nil
+          if session[ :cas_user_attrs ]
+            session[ :cas_user_attrs ] = nil
+            session[ CASClient::Frameworks::Rails::Filter.client.username_session_key ] = nil
+          else
+            session[:cas_sent_to_gateway] = true
+          end
           return
         end
+        
         if request.get? && !request.xhr? && ( session[:revalidate].nil? || session[:revalidate] < Time.now.utc )
           session[:cas_last_valid_ticket] = nil
           session[:revalidate] = JAPI::User.session_revalidation_timeout.from_now
