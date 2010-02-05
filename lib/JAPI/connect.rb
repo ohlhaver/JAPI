@@ -110,9 +110,9 @@ module JAPI
         session[:cas_sent_to_gateway] = true
         last_st = session.try( :[], :cas_last_valid_ticket )
         return unless last_st
+        session[:cas_sent_to_gateway] = false
         if request.get? && !request.xhr? && ( session[:revalidate].nil? || session[:revalidate] < Time.now.utc )
           session[:cas_last_valid_ticket] = nil
-          session[:cas_sent_to_gateway] = false
           session[:revalidate] = JAPI::User.session_revalidation_timeout.from_now
         end
       end
