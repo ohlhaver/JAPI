@@ -51,7 +51,7 @@ class JAPI::User < JAPI::Model::Base
     else
       blocks[:top_stories] = Array( blocks[:sections].shift )
     end if blocks.key?( :top_stories )
-    blocks.delete(:top_stories) if blocks.key?( :top_stories ) && blocks[:top_stories].first && blocks[:top_stories].first.clusters.empty?
+    blocks.delete(:top_stories) if blocks.key?( :top_stories ) && blocks[:top_stories].first && blocks[:top_stories].first.clusters.blank?
     return blocks
   end
   
